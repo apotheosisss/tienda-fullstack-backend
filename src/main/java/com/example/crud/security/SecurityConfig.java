@@ -59,21 +59,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 1. CORS: Usamos nuestra configuración explícita definida abajo
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // 2. CSRF: Desactivado para APIs REST
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS integrado
                 .csrf(csrf -> csrf.disable())
-                // 3. Sesiones: Stateless (sin cookies de sesión)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 4. Rutas
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir Preflight (OPTIONS) explícitamente para evitar 403 en navegadores
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Rutas Públicas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permitir preflight
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        // Rutas Privadas (Admin)
+                        .requestMatchers("/error").permitAll() // IMPORTANTE: Permite ver errores reales en vez de 403
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
@@ -84,12 +78,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- CONFIGURACIÓN CORS PARA SPRING SECURITY ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permitir cualquier origen (Frontend local y Render)
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of("*")); // Permitir todo origen
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
