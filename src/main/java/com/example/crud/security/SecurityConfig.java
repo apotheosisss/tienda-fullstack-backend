@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,18 +44,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Desactivamos la configuración automática de CORS de Spring
-                // (Ya la manejamos manualmente en SimpleCorsFilter)
-                .cors(cors -> cors.disable())
+                // CLAVE: Usar los valores por defecto (que leen nuestro CorsConfig)
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas Públicas
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Pre-flight
-                        .requestMatchers("/api/auth/**").permitAll() // Login y Registro
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Rutas Privadas
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() // Login y Registro públicos
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // Ver productos público
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
