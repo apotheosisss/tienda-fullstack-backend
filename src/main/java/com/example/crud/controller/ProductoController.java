@@ -44,6 +44,10 @@ public class ProductoController {
                     producto.setDescripcion(detalles.getDescripcion());
                     producto.setCategoria(detalles.getCategoria());
                     producto.setImageUrl(detalles.getImageUrl());
+
+                    // --- CAMBIO CRÍTICO: Actualizar el descuento ---
+                    producto.setDescuento(detalles.getDescuento());
+
                     return ResponseEntity.ok(productoRepository.save(producto));
                 })
                 .orElse(ResponseEntity.notFound().build());
