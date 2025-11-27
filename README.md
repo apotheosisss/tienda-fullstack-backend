@@ -143,8 +143,3 @@ Este proyecto incluye un `Dockerfile` optimizado para el despliegue en la nube.
 | `GET` | `/api/admin/dashboard/stats` | Admin | Obtener estadísticas. |
 
 -----
-
-**Desarrollado para la Evaluación 3 - Desarrollo Fullstack**
-
-```
-```
